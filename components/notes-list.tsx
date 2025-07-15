@@ -55,9 +55,9 @@ export function NotesList() {
   }, [filteredNotes]);
 
   return (
-    <div className="h-full flex flex-col bg-[rgba(245, 245, 245, 1)] border-r border-gray-200 w-[280px] flex-shrink-0">
+    <div className="h-full flex flex-col bg-[rgba(245, 245, 245, 1)] border-r border-[hsl(var(--sidebar-border))] w-[280px] flex-shrink-0">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200">
+      <div className="px-4 py-3 border-b border-[hsl(var(--sidebar-border))]">
         <h2 className="text-lg font-semibold text-[rgba(0, 0, 0, 0.9)]">
           {selectedFolder?.name || 'All Notes'}
         </h2>

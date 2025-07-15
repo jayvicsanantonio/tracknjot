@@ -10,7 +10,7 @@ export default function Home() {
   const selectedNote = notes.find(note => note.id === selectedNoteId) || null
 
   return (
-    <main className="flex h-screen overflow-hidden">
+    <main className="flex h-screen overflow-hidden pt-9">
       {!sidebarCollapsed && <NotesSidebar />}
       <NotesList />
       <NoteContentEditor 

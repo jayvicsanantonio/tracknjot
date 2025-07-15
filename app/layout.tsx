@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { ThemeProvider } from '@/components/theme-provider';
+import './globals.css';
+import { GlobalToolbar } from '@/components/global-toolbar';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Notes",
-  description: "Apple Notes clone built with Next.js",
+  title: 'Notes',
+  description: 'Apple Notes clone built with Next.js',
 };
 
 export default function RootLayout({
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <GlobalToolbar />
           {children}
         </ThemeProvider>
       </body>
