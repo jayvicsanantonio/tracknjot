@@ -1,13 +1,22 @@
+'use client'
+
 import { NotesSidebar } from '@/components/notes-sidebar'
-import { NoteEditor } from '@/components/note-editor'
+import { NotesList } from '@/components/notes-list'
+import { NoteContentEditor } from '@/components/note-content-editor'
+import { useNotesStore } from '@/lib/store'
 
 export default function Home() {
+  const { sidebarCollapsed, notes, selectedNoteId, updateNote } = useNotesStore()
+  const selectedNote = notes.find(note => note.id === selectedNoteId) || null
+
   return (
-    <main className="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
-      <NotesSidebar />
-      <div className="flex-1">
-        <NoteEditor />
-      </div>
+    <main className="flex h-screen overflow-hidden pt-9">
+      {!sidebarCollapsed && <NotesSidebar />}
+      <NotesList />
+      <NoteContentEditor 
+        note={selectedNote}
+        onUpdateNote={updateNote}
+      />
     </main>
   )
 }
