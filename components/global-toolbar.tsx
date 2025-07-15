@@ -3,70 +3,24 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useNotesStore } from '@/lib/store';
-import {
-  Folder,
-  List,
-  Grid2X2,
-  Trash2,
-  Share,
-  Type,
-  ListOrdered,
-  Table,
-  Image,
-  Paperclip,
-  CheckSquare,
-  Pencil,
-  Info,
-  Lock,
-  LockOpen,
-  Search,
-  Bold,
-  Italic,
-  Underline,
-} from 'lucide-react';
+import { Folder, List, Grid2X2, Trash2 } from 'lucide-react';
 
 type ViewMode = 'list' | 'grid';
-type ActiveTool =
-  | 'bold'
-  | 'italic'
-  | 'underline'
-  | 'list'
-  | 'table'
-  | 'image'
-  | 'attachment'
-  | 'checklist'
-  | 'pen'
-  | null;
 
 interface GlobalToolbarProps {
   onToggleSidebar?: () => void;
   onViewModeChange?: (mode: ViewMode) => void;
   onDeleteNote?: () => void;
-  onShareNote?: () => void;
-  onFormatText?: (format: string) => void;
-  onShowInfo?: () => void;
-  onToggleLock?: () => void;
-  onOpenSearch?: () => void;
 }
 
 export function GlobalToolbar({
   onToggleSidebar,
   onViewModeChange,
   onDeleteNote,
-  onShareNote,
-  onFormatText,
-  onShowInfo,
-  onToggleLock,
-  onOpenSearch,
 }: GlobalToolbarProps) {
   const { selectedNoteId, sidebarCollapsed, setSidebarCollapsed } =
     useNotesStore();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [isLocked, setIsLocked] = useState(false);
-  const [activeTools, setActiveTools] = useState<Set<ActiveTool>>(
-    new Set()
-  );
-  const [showFontOptions, setShowFontOptions] = useState(false);
 
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
@@ -76,24 +30,6 @@ export function GlobalToolbar({
   const handleToggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
     onToggleSidebar?.();
-  };
-
-  const handleToggleLock = () => {
-    setIsLocked(!isLocked);
-    onToggleLock?.();
-  };
-
-  const toggleTool = (tool: ActiveTool) => {
-    const newActiveTools = new Set(activeTools);
-    if (newActiveTools.has(tool)) {
-      newActiveTools.delete(tool);
-    } else {
-      newActiveTools.add(tool);
-    }
-    setActiveTools(newActiveTools);
-    if (tool && onFormatText) {
-      onFormatText(tool);
-    }
   };
 
   const iconButtonClass = (isActive = false, isDisabled = false) =>
