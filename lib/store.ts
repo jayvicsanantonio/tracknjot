@@ -6,23 +6,40 @@ export interface Note {
   title: string
   content: string
   tags: string[]
+  folderId?: string
   createdAt: Date
   updatedAt: Date
 }
 
+export interface Folder {
+  id: string
+  name: string
+  icon?: string
+  isExpanded?: boolean
+}
+
 interface NotesState {
   notes: Note[]
+  folders: Folder[]
   selectedNoteId: string | null
+  selectedFolderId: string | null
   tagFilter: string | null
   searchQuery: string
+  sidebarCollapsed: boolean
   
   // Actions
-  createNote: () => string
+  createNote: (folderId?: string) => string
   updateNote: (id: string, updates: Partial<Note>) => void
   deleteNote: (id: string) => void
   selectNote: (id: string | null) => void
+  selectFolder: (id: string | null) => void
+  toggleFolder: (id: string) => void
+  createFolder: (name: string) => void
+  deleteFolder: (id: string) => void
+  renameFolder: (id: string, name: string) => void
   setTagFilter: (tag: string | null) => void
   setSearchQuery: (query: string) => void
+  setSidebarCollapsed: (collapsed: boolean) => void
   getFilteredNotes: () => Note[]
   getAllTags: () => string[]
 }
@@ -31,16 +48,22 @@ export const useNotesStore = create<NotesState>()(
   persist(
     (set, get) => ({
       notes: [],
+      folders: [
+        { id: 'notes', name: 'Notes', icon: '📝', isExpanded: true },
+      ],
       selectedNoteId: null,
+      selectedFolderId: 'notes',
       tagFilter: null,
       searchQuery: '',
+      sidebarCollapsed: false,
 
-      createNote: () => {
+      createNote: (folderId) => {
         const newNote: Note = {
           id: Date.now().toString(),
           title: 'New Note',
           content: '',
           tags: [],
+          folderId: folderId || get().selectedFolderId || 'notes',
           createdAt: new Date(),
           updatedAt: new Date(),
         }
@@ -74,6 +97,59 @@ export const useNotesStore = create<NotesState>()(
         set({ selectedNoteId: id })
       },
 
+      selectFolder: (id) => {
+        set({ selectedFolderId: id })
+      },
+
+      toggleFolder: (id) => {
+        set((state) => ({
+          folders: state.folders.map((folder) =>
+            folder.id === id ? { ...folder, isExpanded: !folder.isExpanded } : folder
+          ),
+        }))
+      },
+
+      createFolder: (name) => {
+        const newFolder: Folder = {
+          id: Date.now().toString(),
+          name,
+          icon: '📁',
+          isExpanded: true,
+        }
+        
+        set((state) => ({
+          folders: [...state.folders, newFolder],
+          selectedFolderId: newFolder.id,
+        }))
+      },
+
+      deleteFolder: (id) => {
+        if (id === 'notes') return // Can't delete the default Notes folder
+        
+        set((state) => {
+          // Move all notes from deleted folder to Notes folder
+          const updatedNotes = state.notes.map((note) =>
+            note.folderId === id ? { ...note, folderId: 'notes' } : note
+          )
+          
+          return {
+            folders: state.folders.filter((folder) => folder.id !== id),
+            notes: updatedNotes,
+            selectedFolderId: state.selectedFolderId === id ? 'notes' : state.selectedFolderId,
+          }
+        })
+      },
+
+      renameFolder: (id, name) => {
+        if (id === 'notes') return // Can't rename the default Notes folder
+        
+        set((state) => ({
+          folders: state.folders.map((folder) =>
+            folder.id === id ? { ...folder, name } : folder
+          ),
+        }))
+      },
+
       setTagFilter: (tag) => {
         set({ tagFilter: tag })
       },
@@ -82,10 +158,21 @@ export const useNotesStore = create<NotesState>()(
         set({ searchQuery: query })
       },
 
+      setSidebarCollapsed: (collapsed) => {
+        set({ sidebarCollapsed: collapsed })
+      },
+
       getFilteredNotes: () => {
-        const { notes, tagFilter, searchQuery } = get()
+        const { notes, tagFilter, searchQuery, selectedFolderId } = get()
         
         return notes.filter((note) => {
+          // Filter by folder
+          if (selectedFolderId && selectedFolderId !== 'all') {
+            if (note.folderId !== selectedFolderId) {
+              return false
+            }
+          }
+          
           // Filter by tag
           if (tagFilter && !note.tags.includes(tagFilter)) {
             return false
