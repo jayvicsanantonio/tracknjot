@@ -6,7 +6,6 @@ import { useNotesStore, Folder } from '@/lib/store';
 import { NewFolderDialog } from './new-folder-dialog';
 import { FolderItem } from './folder-item';
 import { ThemeToggle } from './theme-toggle';
-import { cn } from '@/lib/utils';
 
 export function NotesSidebar() {
   const {

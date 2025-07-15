@@ -1,30 +1,35 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { ChevronRight, Edit2, Trash2, GripVertical } from 'lucide-react'
-import { useNotesStore, Folder } from '@/lib/store'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  ChevronRight,
+  Edit2,
+  Trash2,
+  GripVertical,
+} from 'lucide-react';
+import { useNotesStore, Folder } from '@/lib/store';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface FolderItemProps {
-  folder: Folder
-  level?: number
-  onDragStart: (e: React.DragEvent, folder: Folder) => void
-  onDragOver: (e: React.DragEvent) => void
-  onDrop: (e: React.DragEvent, targetFolder: Folder) => void
-  isDragging?: boolean
-  dragOverId?: string | null
+  folder: Folder;
+  level?: number;
+  onDragStart: (e: React.DragEvent, folder: Folder) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent, targetFolder: Folder) => void;
+  isDragging?: boolean;
+  dragOverId?: string | null;
 }
 
-export function FolderItem({ 
-  folder, 
-  level = 0, 
-  onDragStart, 
-  onDragOver, 
+export function FolderItem({
+  folder,
+  level = 0,
+  onDragStart,
+  onDragOver,
   onDrop,
   isDragging,
-  dragOverId
+  dragOverId,
 }: FolderItemProps) {
   const {
     folders,
@@ -33,27 +38,30 @@ export function FolderItem({
     renameFolder,
     selectFolder,
     toggleFolder,
-    moveFolder,
-  } = useNotesStore()
+  } = useNotesStore();
 
-  const [hoveredFolderId, setHoveredFolderId] = useState<string | null>(null)
-  const [editingFolderId, setEditingFolderId] = useState<string | null>(null)
-  const [editingFolderName, setEditingFolderName] = useState('')
+  const [hoveredFolderId, setHoveredFolderId] = useState<
+    string | null
+  >(null);
+  const [editingFolderId, setEditingFolderId] = useState<
+    string | null
+  >(null);
+  const [editingFolderName, setEditingFolderName] = useState('');
 
-  const hasSubfolders = folders.some(f => f.parentId === folder.id)
-  const subfolders = folders.filter(f => f.parentId === folder.id)
+  const hasSubfolders = folders.some((f) => f.parentId === folder.id);
+  const subfolders = folders.filter((f) => f.parentId === folder.id);
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onDragOver(e)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    onDragOver(e);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onDrop(e, folder)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    onDrop(e, folder);
+  };
 
   return (
     <>
@@ -63,25 +71,27 @@ export function FolderItem({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={() => {
-          selectFolder(folder.id)
+          selectFolder(folder.id);
           if (hasSubfolders) {
-            toggleFolder(folder.id)
+            toggleFolder(folder.id);
           }
         }}
         onMouseEnter={() => setHoveredFolderId(folder.id)}
         onMouseLeave={() => setHoveredFolderId(null)}
         className={cn(
           'folder-item group cursor-move',
-          selectedFolderId === folder.id && 'bg-[hsl(var(--note-hover))]',
+          selectedFolderId === folder.id &&
+            'bg-[hsl(var(--note-hover))]',
           isDragging && 'opacity-50',
-          dragOverId === folder.id && 'bg-[hsl(var(--primary))]/10 border-[hsl(var(--primary))]'
+          dragOverId === folder.id &&
+            'bg-[hsl(var(--primary))]/10 border-[hsl(var(--primary))]'
         )}
         style={{ paddingLeft: `${level * 16 + 12}px` }}
       >
         {hoveredFolderId === folder.id && (
           <GripVertical className="w-3 h-3 text-[hsl(var(--muted-foreground))] opacity-50 absolute left-0" />
         )}
-        
+
         {hasSubfolders ? (
           <ChevronRight
             className={cn(
@@ -92,25 +102,25 @@ export function FolderItem({
         ) : (
           <div className="w-3" />
         )}
-        
+
         <span className="mr-1.5">{folder.icon}</span>
-        
+
         {editingFolderId === folder.id ? (
           <Input
             value={editingFolderName}
             onChange={(e) => setEditingFolderName(e.target.value)}
             onKeyDown={(e) => {
-              e.stopPropagation()
+              e.stopPropagation();
               if (e.key === 'Enter') {
-                renameFolder(folder.id, editingFolderName)
-                setEditingFolderId(null)
+                renameFolder(folder.id, editingFolderName);
+                setEditingFolderId(null);
               } else if (e.key === 'Escape') {
-                setEditingFolderId(null)
+                setEditingFolderId(null);
               }
             }}
             onBlur={() => {
-              renameFolder(folder.id, editingFolderName)
-              setEditingFolderId(null)
+              renameFolder(folder.id, editingFolderName);
+              setEditingFolderId(null);
             }}
             onClick={(e) => e.stopPropagation()}
             className="flex-1 h-5 px-1 text-sm"
@@ -119,14 +129,14 @@ export function FolderItem({
         ) : (
           <span className="flex-1">{folder.name}</span>
         )}
-        
+
         {hoveredFolderId === folder.id && folder.id !== 'notes' && (
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                setEditingFolderId(folder.id)
-                setEditingFolderName(folder.name)
+                e.stopPropagation();
+                setEditingFolderId(folder.id);
+                setEditingFolderName(folder.name);
               }}
               className="p-0.5 hover:bg-[hsl(var(--secondary))] rounded"
               title="Rename folder"
@@ -135,9 +145,13 @@ export function FolderItem({
             </button>
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                if (confirm(`Delete folder "${folder.name}"? Notes will be moved to the Notes folder.`)) {
-                  deleteFolder(folder.id)
+                e.stopPropagation();
+                if (
+                  confirm(
+                    `Delete folder "${folder.name}"? Notes will be moved to the Notes folder.`
+                  )
+                ) {
+                  deleteFolder(folder.id);
                 }
               }}
               className="p-0.5 hover:bg-[hsl(var(--secondary))] rounded"
@@ -172,5 +186,5 @@ export function FolderItem({
         </motion.div>
       )}
     </>
-  )
+  );
 }

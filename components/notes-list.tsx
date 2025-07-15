@@ -35,9 +35,9 @@ export function NotesList() {
 
     const groups = {
       pinned: { label: 'Pinned', notes: pinnedNotes },
-      today: { label: 'Today', notes: [] },
-      pastWeek: { label: 'Previous 7 Days', notes: [] },
-      pastMonth: { label: 'Previous 30 Days', notes: [] },
+      today: { label: 'Today', notes: [] as Note[] },
+      pastWeek: { label: 'Previous 7 Days', notes: [] as Note[] },
+      pastMonth: { label: 'Previous 30 Days', notes: [] as Note[] },
     };
 
     otherNotes.forEach((note) => {
