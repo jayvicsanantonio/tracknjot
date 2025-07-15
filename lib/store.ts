@@ -7,6 +7,7 @@ export interface Note {
   content: string
   tags: string[]
   folderId?: string
+  isPinned?: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -16,6 +17,7 @@ export interface Folder {
   name: string
   icon?: string
   isExpanded?: boolean
+  parentId?: string | null
 }
 
 interface NotesState {
@@ -34,9 +36,10 @@ interface NotesState {
   selectNote: (id: string | null) => void
   selectFolder: (id: string | null) => void
   toggleFolder: (id: string) => void
-  createFolder: (name: string) => void
+  createFolder: (name: string, parentId?: string) => void
   deleteFolder: (id: string) => void
   renameFolder: (id: string, name: string) => void
+  moveFolder: (folderId: string, newParentId: string | null) => void
   setTagFilter: (tag: string | null) => void
   setSearchQuery: (query: string) => void
   setSidebarCollapsed: (collapsed: boolean) => void
@@ -109,12 +112,13 @@ export const useNotesStore = create<NotesState>()(
         }))
       },
 
-      createFolder: (name) => {
+      createFolder: (name, parentId) => {
         const newFolder: Folder = {
           id: Date.now().toString(),
           name,
           icon: '📁',
-          isExpanded: true,
+          isExpanded: false,
+          parentId: parentId || null,
         }
         
         set((state) => ({
@@ -146,6 +150,27 @@ export const useNotesStore = create<NotesState>()(
         set((state) => ({
           folders: state.folders.map((folder) =>
             folder.id === id ? { ...folder, name } : folder
+          ),
+        }))
+      },
+
+      moveFolder: (folderId, newParentId) => {
+        if (folderId === 'notes') return // Can't move the default Notes folder
+        if (folderId === newParentId) return // Can't move folder into itself
+        
+        // Check if the new parent is a descendant of the folder being moved
+        const isDescendant = (parentId: string | null | undefined): boolean => {
+          if (!parentId) return false
+          if (parentId === folderId) return true
+          const parent = get().folders.find(f => f.id === parentId)
+          return parent ? isDescendant(parent.parentId) : false
+        }
+        
+        if (isDescendant(newParentId)) return // Prevent circular references
+        
+        set((state) => ({
+          folders: state.folders.map((folder) =>
+            folder.id === folderId ? { ...folder, parentId: newParentId } : folder
           ),
         }))
       },
